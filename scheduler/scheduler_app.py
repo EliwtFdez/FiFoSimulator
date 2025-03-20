@@ -1,11 +1,7 @@
-
-
-
+import tkinter as tk
+from tkinter import ttk
+from Gui.gui_components import InputFrame, ProcessListFrame, GanttFrame, TimesFrame, ButtonFrame
 from Algorithm.fifo_algorithm import FIFOAlgorithm
-from gui import ButtonFrame, GanttFrame, TimesFrame
-from gui.ProcessListFrame import ProcessListFrame
-from gui.gui_components import InputFrame
-
 
 class FIFOSchedulerApp:
     def __init__(self, root):
