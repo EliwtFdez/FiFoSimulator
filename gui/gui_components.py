@@ -102,10 +102,29 @@ class GanttFrame:
         y_pos = 0
         colors = ['#FF9999', '#66B2FF', '#99FF99', '#FFCC99', '#FF99CC', '#99CCFF']
         
+        # Recolectar todos los tiempos de inicio y finalización
+        all_times = []
+        for process in results:
+            all_times.append(process['arrival'])
+            all_times.append(process['start'])
+            all_times.append(process['completion'])
+        
+        # Ordenar y eliminar duplicados
+        unique_times = sorted(list(set(all_times)))
+        
+        # Dibujar líneas verticales punteadas para cada tiempo significativo
+        for time in unique_times:
+            if time > 0:  # No dibujar línea en tiempo 0
+                color = 'red' if any(p['arrival'] == time for p in results) else 'blue'
+                ax.axvline(x=time, color=color, linestyle='--', alpha=0.7, linewidth=1)
+        
+        # Altura máxima para las líneas verticales
+        max_y = len(results)
+        
         for i, process in enumerate(results):
             color_idx = i % len(colors)
             
-            # Dibujar línea punteada si el proceso esperó
+            # Dibujar línea punteada horizontal si el proceso esperó
             if process['start'] > process['arrival']:
                 ax.plot([process['arrival'], process['start']], [y_pos, y_pos], 'r--', linewidth=2)
                 # Marcar tiempo de llegada con un punto
@@ -127,19 +146,22 @@ class GanttFrame:
             y_pos += 1
         
         ax.set_xlabel('Tiempo')
+        ax.set_ylabel('Procesos')
         ax.set_yticks(range(len(results)))
         ax.set_yticklabels([p['name'] for p in results])
-        ax.grid(axis='x', linestyle='--', alpha=0.7)
+        ax.grid(axis='x', linestyle='--', alpha=0.3)
         
         max_time = max([p['completion'] for p in results]) if results else 0
         ax.set_xlim(0, max_time + 1)
         
-        # Añadir leyenda para los puntos
+        # Añadir leyenda para los puntos y líneas
         ax.plot([], [], 'ro', markersize=8, label='Tiempo de Llegada')
         ax.plot([], [], 'go', markersize=8, label='Tiempo de Inicio')
         ax.plot([], [], 'bo', markersize=8, label='Tiempo de Finalización')
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=3)
-        
+        ax.plot([], [], 'r--', linewidth=1, label='Línea de Tiempo de Llegada')
+        ax.plot([], [], 'b--', linewidth=1, label='Línea de Tiempo de Inicio/Fin')
+        ax.legend(loc='upper center', bbox_to_anchor=(1, -0.15), ncol=10)
+       
         plt.tight_layout()
         
         canvas = FigureCanvasTkAgg(fig, master=self.frame)
